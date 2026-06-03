@@ -8,7 +8,7 @@ echo ""
 echo "=== GRADUATION PHOTO BOOTH ==="
 echo "Server IP(s): $(hostname -I | tr ' ' '\n' | grep -v '^$' | head -3)"
 echo "Gallery URL:  http://$(hostname -I | awk '{print $1}'):8080/booth.html"
-echo "Upload URL:   http://$(hostname -I | awk '{print $1}'):8080/upload"
+echo "Upload URL:   http://$(hostname -I | awk '{print $1}'):8080/upload.html"
 echo "==============================="
 echo ""
 

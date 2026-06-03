@@ -18,6 +18,12 @@ PHOTOS_DIR.mkdir(exist_ok=True)
 
 STATIC_DIR = Path(__file__).parent
 
+# Phone photos can be 8MP+; cap before polaroid processing to keep things fast
+MAX_UPLOAD_DIM = 2000
+
+# Cam IDs that are placeholders, not real names
+_DEFAULT_CAM_IDS = {"cam0", "cam1", "cam2", "guest", ""}
+
 # -- AI style processing (optional — set GEMINI_API_KEY to enable) --
 STYLE_ENABLED = False
 STYLE_PROMPT = os.getenv(
@@ -225,6 +231,13 @@ async def upload(request: Request):
     # Decode the raw frame
     img = decode_frame(body, content_type, width, height)
 
+    # Resize phone photos — polaroid only needs 600px, no need to process 4K images
+    if max(img.size) > MAX_UPLOAD_DIM:
+        img.thumbnail((MAX_UPLOAD_DIM, MAX_UPLOAD_DIM), Image.LANCZOS)
+
+    # Use uploader's name as the polaroid caption when it looks like a real name
+    caption = cam_id if cam_id not in _DEFAULT_CAM_IDS else event
+
     # Save raw original immediately
     raw_path = PHOTOS_DIR / f"{ts}_{cam_id}_raw.jpg"
     raw_buf = io.BytesIO()
@@ -232,7 +245,7 @@ async def upload(request: Request):
     raw_path.write_bytes(raw_buf.getvalue())
 
     # Save clean polaroid (frame only, no style) immediately
-    clean_polaroid = make_polaroid(img, event)
+    clean_polaroid = make_polaroid(img, caption)
     clean_path = PHOTOS_DIR / f"{ts}_{cam_id}_clean.jpg"
     clean_path.write_bytes(clean_polaroid)
 
@@ -241,7 +254,7 @@ async def upload(request: Request):
     await hub.broadcast({"photo": filename, "cam": cam_id})
 
     # Apply AI style in background — overwrites the gallery file when done
-    asyncio.create_task(_style_and_replace(img, event, filepath, filename, cam_id))
+    asyncio.create_task(_style_and_replace(img, caption, filepath, filename, cam_id))
 
     return {"ok": True, "filename": filename}
 
@@ -261,7 +274,12 @@ async def _style_and_replace(img: Image.Image, event: str, filepath: Path, filen
 
 @app.get("/")
 async def root():
-    return RedirectResponse("/booth.html")
+    return RedirectResponse("/upload.html")
+
+
+@app.get("/upload.html")
+async def upload_page():
+    return FileResponse(STATIC_DIR / "upload.html")
 
 
 @app.get("/booth.html")
