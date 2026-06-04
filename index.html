@@ -376,6 +376,108 @@
         </div>
     </footer>
 
+    <!-- Lightbox for photo gallery -->
+    <script>
+        (function () {
+            var overlay, img, closeBtn, prevBtn, nextBtn, counter;
+            var photos = [];
+            var current = 0;
+
+            function build() {
+                overlay = document.createElement('div');
+                overlay.className = 'lb-overlay';
+                overlay.setAttribute('role', 'dialog');
+                overlay.setAttribute('aria-modal', 'true');
+
+                img = document.createElement('img');
+                img.className = 'lb-img';
+                img.alt = '';
+
+                closeBtn = document.createElement('button');
+                closeBtn.className = 'lb-close';
+                closeBtn.innerHTML = '&#10005;';
+                closeBtn.setAttribute('aria-label', 'Close');
+
+                prevBtn = document.createElement('button');
+                prevBtn.className = 'lb-arrow lb-prev';
+                prevBtn.innerHTML = '&#8249;';
+                prevBtn.setAttribute('aria-label', 'Previous');
+
+                nextBtn = document.createElement('button');
+                nextBtn.className = 'lb-arrow lb-next';
+                nextBtn.innerHTML = '&#8250;';
+                nextBtn.setAttribute('aria-label', 'Next');
+
+                counter = document.createElement('span');
+                counter.className = 'lb-counter';
+
+                overlay.appendChild(img);
+                overlay.appendChild(closeBtn);
+                overlay.appendChild(prevBtn);
+                overlay.appendChild(nextBtn);
+                overlay.appendChild(counter);
+                document.body.appendChild(overlay);
+
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay) close();
+                });
+                closeBtn.addEventListener('click', close);
+                prevBtn.addEventListener('click', function (e) { e.stopPropagation(); go(current - 1); });
+                nextBtn.addEventListener('click', function (e) { e.stopPropagation(); go(current + 1); });
+
+                document.addEventListener('keydown', function (e) {
+                    if (!overlay.classList.contains('lb-open')) return;
+                    if (e.key === 'Escape')      close();
+                    if (e.key === 'ArrowLeft')   go(current - 1);
+                    if (e.key === 'ArrowRight')  go(current + 1);
+                });
+            }
+
+            function open(idx) {
+                current = idx;
+                img.src = photos[idx].src;
+                img.alt = photos[idx].alt || '';
+                updateNav();
+                overlay.classList.add('lb-open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function close() {
+                overlay.classList.remove('lb-open');
+                document.body.style.overflow = '';
+            }
+
+            function go(idx) {
+                if (idx < 0 || idx >= photos.length) return;
+                current = idx;
+                img.src = photos[idx].src;
+                img.alt = photos[idx].alt || '';
+                updateNav();
+            }
+
+            function updateNav() {
+                prevBtn.classList.toggle('lb-hidden', current === 0);
+                nextBtn.classList.toggle('lb-hidden', current === photos.length - 1);
+                counter.textContent = (current + 1) + ' / ' + photos.length;
+            }
+
+            function init() {
+                build();
+                var cells = document.querySelectorAll('.photo-cell img');
+                cells.forEach(function (el, i) {
+                    photos.push(el);
+                    el.parentElement.addEventListener('click', function () { open(i); });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         var qr = new QRCode(document.getElementById("qrcode"), {

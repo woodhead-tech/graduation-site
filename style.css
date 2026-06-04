@@ -512,18 +512,94 @@ a   { text-decoration: none; color: inherit; }
     aspect-ratio: 4 / 3;
     overflow: hidden;
     border-radius: var(--r-sm);
-    background: rgba(26, 39, 68, 0.06);
+    background: var(--navy-deep);
     box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-in;
 }
 
 .photo-cell img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.photo-cell:hover img { transform: scale(1.06); }
+.photo-cell:hover img { transform: scale(1.04); }
+
+/* ── lightbox ── */
+.lb-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: zoom-out;
+}
+.lb-overlay.lb-open { opacity: 1; }
+
+.lb-img {
+    max-width: 95vw;
+    max-height: 92vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 2px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+    cursor: default;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.lb-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.8);
+    transition: background 0.15s;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.lb-close:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+.lb-arrow {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    transition: background 0.15s, color 0.15s;
+    font-size: 1.3rem;
+    user-select: none;
+}
+.lb-arrow:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.lb-prev { left: 16px; }
+.lb-next { right: 16px; }
+.lb-arrow.lb-hidden { opacity: 0; pointer-events: none; }
+
+.lb-counter {
+    position: absolute;
+    bottom: 16px; left: 50%; transform: translateX(-50%);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+}
 
 /* ─────────────────────────────────────────────────────────────── */
 /* CELEBRATE FROM AFAR                                            */
