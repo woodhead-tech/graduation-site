@@ -287,6 +287,11 @@ async def booth_page():
     return FileResponse(STATIC_DIR / "booth.html")
 
 
+@app.get("/slideshow.html")
+async def slideshow_page():
+    return FileResponse(STATIC_DIR / "slideshow.html")
+
+
 @app.get("/photos/{filename}")
 async def get_photo(filename: str):
     filepath = PHOTOS_DIR / filename
