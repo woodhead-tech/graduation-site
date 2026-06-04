@@ -4,3 +4,5 @@ booth/__pycache__/
 booth/*.pyc
 trip-runbook.md
 qr-print.html
+qr-4x6.html
+print-ready/
